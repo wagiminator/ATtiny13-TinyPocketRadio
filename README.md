@@ -10,7 +10,7 @@ The schematic is shown below:
 
 ![wiring.png](https://github.com/wagiminator/ATtiny13-TinyPocketRadio/blob/main/documentation/TinyPocketRadio_Wiring.png)
 
-The low-cost RDA5807MP series is the newest generation single-chip broadcast FM stereo radio tuner with fully integrated synthesizer, IF selectivity, RDS/RBDS and MPX decoder. The tuner uses the CMOS process, support multi-interface and require the least external component. All these make it very suitable for portable devices.
+The low-cost RDA5807MP is a single-chip broadcast FM stereo radio tuner with fully integrated synthesizer, IF selectivity, RDS/RBDS and MPX decoder. The tuner uses the CMOS process, support multi-interface and require the least external component. All these make it very suitable for portable devices.
 
 # Software
 The FM tuner IC RDA5807MP is controled via I²C by the ATtiny. The I²C protocol implementation is based on a crude bitbanging method. It was specifically designed for the limited resources of ATtiny10 and ATtiny13, but should work with some other AVRs as well. Due to the low clock frequency of the CPU, it does not require any delays for correct timing. In order to save resources, only the basic functionalities which are needed for this application are implemented. For a detailed information on the working principle of the I²C implementation visit https://github.com/wagiminator/attiny13-tinyoleddemo.
