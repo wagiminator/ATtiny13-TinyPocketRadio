@@ -3,12 +3,12 @@ TinyPocketRadio is a simple FM stereo radio based on ATtiny13A and RDA5807MP. It
 
 - Project Files (EasyEDA): https://easyeda.com/wagiminator/attiny13-tinyradio
 
-![pic1.jpg](https://github.com/wagiminator/ATtiny13-TinyPocketRadio/blob/main/documentation/TinyPocketRadio_pic1.jpg)
+![pic1.jpg](https://raw.githubusercontent.com/wagiminator/ATtiny13-TinyPocketRadio/main/documentation/TinyPocketRadio_pic1.jpg)
 
 # Hardware
 The schematic is shown below:
 
-![wiring.png](https://github.com/wagiminator/ATtiny13-TinyPocketRadio/blob/main/documentation/TinyPocketRadio_Wiring.png)
+![wiring.png](https://raw.githubusercontent.com/wagiminator/ATtiny13-TinyPocketRadio/main/documentation/TinyPocketRadio_Wiring.png)
 
 The low-cost RDA5807MP is a single-chip broadcast FM stereo radio tuner with fully integrated synthesizer, IF selectivity, RDS/RBDS and MPX decoder. The tuner uses the CMOS process, support multi-interface and require the least external component. All these make it very suitable for portable devices.
 
@@ -168,4 +168,4 @@ Since there is no ICSP header on the board, you have to program the ATtiny eithe
 3. [ATtiny13 I²C OLED Tutorial](https://github.com/wagiminator/attiny13-tinyoleddemo)
 4. [ATtiny85 TinyFMRadio](https://github.com/wagiminator/ATtiny85-TinyFMRadio)
 
-![pic2.jpg](https://github.com/wagiminator/ATtiny13-TinyPocketRadio/blob/main/documentation/TinyPocketRadio_pic2.jpg)
+![pic2.jpg](https://raw.githubusercontent.com/wagiminator/ATtiny13-TinyPocketRadio/main/documentation/TinyPocketRadio_pic2.jpg)
