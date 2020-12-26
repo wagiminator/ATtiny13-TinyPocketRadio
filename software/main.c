@@ -39,37 +39,22 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
-// button pin definitions
-#define BT_SEEK         PB0
-#define BT_VOLM         PB1
-#define BT_VOLP         PB2
-#define BT_MASK         (1<<BT_SEEK)|(1<<BT_VOLM)|(1<<BT_VOLP)
+// pin definitions
+#define BT_SEEK         PB0               // CH+  button
+#define BT_VOLM         PB1               // VOL- button
+#define BT_VOLP         PB2               // VOL+ button
+#define I2C_SDA         PB3               // serial data pin
+#define I2C_SCL         PB4               // serial clock pin
 
-// I2C definitions
-#define I2C_SDA         PB3                   // serial data pin
-#define I2C_SCL         PB4                   // serial clock pin
+// -----------------------------------------------------------------------------
+// I2C Implementation
+// -----------------------------------------------------------------------------
+
+// I2C macros
 #define I2C_SDA_HIGH()  DDRB &= ~(1<<I2C_SDA) // release SDA   -> pulled HIGH by resistor
 #define I2C_SDA_LOW()   DDRB |=  (1<<I2C_SDA) // SDA as output -> pulled LOW  by MCU
 #define I2C_SCL_HIGH()  DDRB &= ~(1<<I2C_SCL) // release SCL   -> pulled HIGH by resistor
 #define I2C_SCL_LOW()   DDRB |=  (1<<I2C_SCL) // SCL as output -> pulled LOW  by MCU
-
-// RDA definitions
-#define RDA_ADDR_SEQ    0x20                  // RDA I2C write address for sequential access
-#define RDA_ADDR_INDEX  0x22                  // RDA I2C write address for indexed access
-#define R2_SEEK_ENABLE  0x0100                // RDA seek enable bit
-#define R2_SOFT_RESET   0x0002                // RDA soft reset bit
-#define R5_VOLUME       0x000F                // RDA volume mask
-#define RDA_VOL         5                     // start volume
-
-// global variables
-uint16_t RDA_regs[6] = {
-  0b1101001000000101,                         // RDA register 0x02
-  0b0001010111000000,                         // RDA register 0x03
-  0b0000101000000000,                         // RDA register 0x04
-  0b1000100010000000,                         // RDA register 0x05
-  0b0000000000000000,                         // RDA register 0x06
-  0b0000000000000000                          // RDA register 0x07
-};
 
 // I2C init function
 void I2C_init(void) {
@@ -103,6 +88,28 @@ void I2C_stop(void) {
   I2C_SCL_HIGH();                         // stop condition: SCL goes HIGH first
   I2C_SDA_HIGH();                         // stop condition: SDA goes HIGH second
 }
+
+// -----------------------------------------------------------------------------
+// RDA5807 Implementation
+// -----------------------------------------------------------------------------
+
+// RDA definitions
+#define RDA_ADDR_SEQ    0x20              // RDA I2C write address for sequential access
+#define RDA_ADDR_INDEX  0x22              // RDA I2C write address for indexed access
+#define R2_SEEK_ENABLE  0x0100            // RDA seek enable bit
+#define R2_SOFT_RESET   0x0002            // RDA soft reset bit
+#define R5_VOLUME       0x000F            // RDA volume mask
+#define RDA_VOL         5                 // start volume
+
+// RDA write registers
+uint16_t RDA_regs[6] = {
+  0b1101001000000101,                     // RDA register 0x02
+  0b0001010111000000,                     // RDA register 0x03
+  0b0000101000000000,                     // RDA register 0x04
+  0b1000100010000000,                     // RDA register 0x05
+  0b0000000000000000,                     // RDA register 0x06
+  0b0000000000000000                      // RDA register 0x07
+};
 
 // writes specified register to RDA
 void RDA_writeReg(uint8_t reg) {
@@ -146,6 +153,12 @@ void RDA_seekUp(void) {
   RDA_writeReg(0);                        // write to register 0x02
 }
 
+// -----------------------------------------------------------------------------
+// Main Function
+// -----------------------------------------------------------------------------
+
+#define BT_MASK   (1<<BT_SEEK)|(1<<BT_VOLM)|(1<<BT_VOLP)
+
 int main(void) {
   // setup pins
   PORTB |= (BT_MASK);                     // pull-ups for button pins
@@ -166,7 +179,7 @@ int main(void) {
   RDA_init();                             // initialize RDA
   RDA_seekUp();                           // seek a channel
 
-  // main loop
+  // loop
   while(1) {
     sleep_mode();                         // sleep until button is pressed
     _delay_ms(1);                         // debounce
