@@ -46,8 +46,8 @@
 #define BT_SEEK         PB0               // CH+  button
 #define BT_VOLM         PB1               // VOL- button
 #define BT_VOLP         PB2               // VOL+ button
-#define I2C_SDA         PB3               // serial data pin
-#define I2C_SCL         PB4               // serial clock pin
+#define I2C_SDA         PB3               // I2C serial data pin
+#define I2C_SCL         PB4               // I2C serial clock pin
 
 // -----------------------------------------------------------------------------
 // I2C Implementation
@@ -114,7 +114,7 @@ uint16_t RDA_regs[6] = {
   0b0000000000000000                      // RDA register 0x07
 };
 
-// writes specified register to RDA
+// RDA write specified register
 void RDA_writeReg(uint8_t reg) {
   I2C_start(RDA_ADDR_INDEX);              // start I2C for index write to RDA
   I2C_write(0x02 + reg);                  // set the register to write
@@ -123,7 +123,7 @@ void RDA_writeReg(uint8_t reg) {
   I2C_stop();                             // stop I2C
 }
 
-// writes all registers to RDA
+// RDA write all registers
 void RDA_writeAllRegs(void) {
   I2C_start(RDA_ADDR_SEQ);                // start I2C for sequential write to RDA
   for (uint8_t i=0; i<6; i++) {           // write to 6 registers
@@ -133,7 +133,7 @@ void RDA_writeAllRegs(void) {
   I2C_stop();                             // stop I2C
 }
 
-// initialize RDA tuner
+// RDA initialize tuner
 void RDA_init(void) {
   I2C_init();                             // init I2C
   RDA_regs[0] |= R2_SOFT_RESET;           // set soft reset
@@ -143,14 +143,14 @@ void RDA_init(void) {
   RDA_writeReg(0);                        // write to register 0x02
 }
 
-// set volume
+// RDA set volume
 void RDA_setVolume(uint8_t vol) {
   RDA_regs[3] &= 0xFFF0;                  // clear volume bits
   RDA_regs[3] |= vol;                     // set volume
   RDA_writeReg(3);                        // write to register 0x05
 }
 
-// seek next channel
+// RDA seek next channel
 void RDA_seekUp(void) {
   RDA_regs[0] |= R2_SEEK_ENABLE;          // set seek enable bit
   RDA_writeReg(0);                        // write to register 0x02
