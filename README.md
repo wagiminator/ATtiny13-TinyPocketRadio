@@ -1,7 +1,7 @@
 # TinyPocketRadio - FM Stereo Radio based on ATtiny13A
 TinyPocketRadio is a simple FM stereo radio based on ATtiny13A and RDA5807MP. It's powered by a CR2032 coin cell battery and can drive 32 Ohm headphones via the 3.5 mm audio plug. The board size is 38 x 23 mm. It has a power switch and three buttons: "Channel+", Volume-" and "Volume+ ".
 
-- Project Files (EasyEDA): https://easyeda.com/wagiminator/attiny13-tinyradio
+- Design Files (EasyEDA): https://easyeda.com/wagiminator/attiny13-tinyradio
 
 ![pic1.jpg](https://raw.githubusercontent.com/wagiminator/ATtiny13-TinyPocketRadio/main/documentation/TinyPocketRadio_pic1.jpg)
 
@@ -169,3 +169,9 @@ Since there is no ICSP header on the board, you have to program the ATtiny eithe
 4. [ATtiny85 TinyFMRadio](https://github.com/wagiminator/ATtiny85-TinyFMRadio)
 
 ![pic2.jpg](https://raw.githubusercontent.com/wagiminator/ATtiny13-TinyPocketRadio/main/documentation/TinyPocketRadio_pic2.jpg)
+
+# License
+![license.png](https://i.creativecommons.org/l/by-sa/3.0/88x31.png)
+
+This work is licensed under Creative Commons Attribution-ShareAlike 3.0 Unported License. 
+(http://creativecommons.org/licenses/by-sa/3.0/)
