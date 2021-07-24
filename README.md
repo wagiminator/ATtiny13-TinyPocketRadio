@@ -162,6 +162,11 @@ Since there is no ICSP header on the board, you have to program the ATtiny eithe
 - Navigate to the folder with the makefile and main.c.
 - Run "make install" to compile, burn the fuses and upload the firmware.
 
+# Power Consumption
+TinyPocketRadio consumes an average current of 22mA at 3V and medium volume. The typical capacity of a CR2032 battery is 230mAh. This results in a theoretical battery life of 10 hours.
+
+![current.png](https://raw.githubusercontent.com/wagiminator/ATtiny13-TinyPocketRadio/main/documentation/TinyPocketRadio_Current.png)
+
 # References, Links and Notes
 1. [ATtiny13A Datasheet](http://ww1.microchip.com/downloads/en/DeviceDoc/doc8126.pdf)
 2. [RDA5807MP Datasheet](https://datasheet.lcsc.com/szlcsc/1806121226_RDA-Microelectronics-RDA5807MP_C167245.pdf)
