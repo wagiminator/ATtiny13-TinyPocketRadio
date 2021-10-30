@@ -1,5 +1,15 @@
-// tinyPocketRadio for ATtiny13A
+// ===================================================================================
+// Project:   TinyPocketRadio - FM Tuner based on ATtiny13A
+// Version:   v1.0
+// Year:      2020
+// Author:    Stefan Wagner
+// Github:    https://github.com/wagiminator
+// EasyEDA:   https://easyeda.com/wagiminator
+// License:   http://creativecommons.org/licenses/by-sa/3.0/
+// ===================================================================================
 //
+// Description:
+// ------------
 // This code implements a simple Pocket Radio with three control buttons
 // (Vol+/- and Channel Seek). The FM tuner IC RDA5807MP is controled via
 // I²C by the ATtiny.
@@ -17,41 +27,51 @@
 // The CPU wakes up on every button press by pin change interrupt, transmits
 // the appropriate command via I²C to the RDA5807 and falls asleep again.
 //
-//                           +-\/-+
-//         --- A0 (D5) PB5  1|    |8  Vcc
-// I2C SDA --- A3 (D3) PB3  2|    |7  PB2 (D2) A1 --- VOL+ BUTTON
-// I2C SCL --- A2 (D4) PB4  3|    |6  PB1 (D1) ------ VOL- BUTTON
-//                     GND  4|    |5  PB0 (D0) ------ SEEK BUTTON
-//                           +----+    
+// Wiring:
+// -------
+//                            +-\/-+
+//         --- RST ADC0 PB5  1|°   |8  Vcc
+// I2C SDA ------- ADC3 PB3  2|    |7  PB2 ADC1 -------- VOL+ BUTTON
+// I2C SCL ------- ADC2 PB4  3|    |6  PB1 AIN1 OC0B --- VOL- BUTTON
+//                      GND  4|    |5  PB0 AIN0 OC0A --- SEEK BUTTON
+//                            +----+
 //
-// Controller: ATtiny13
+// Compilation Settings:
+// ---------------------
+// Controller: ATtiny13A
 // Core:       MicroCore (https://github.com/MCUdude/MicroCore)
 // Clockspeed: 1.2 MHz internal
-// BOD:        BOD disabled (power saving)
-// Timing:     Micros disabled (power saving)
+// BOD:        BOD disabled
+// Timing:     Micros disabled
 //
-// 2020 by Stefan Wagner 
-// Project Files (EasyEDA): https://easyeda.com/wagiminator
-// Project Files (Github):  https://github.com/wagiminator
-// License: http://creativecommons.org/licenses/by-sa/3.0/
+// Leave the rest on default settings. Don't forget to "Burn bootloader"!
+// No Arduino core functions or libraries are used. Use the makefile if 
+// you want to compile without Arduino IDE.
+//
+// Fuse settings: -U lfuse:w:0x2a:m -U hfuse:w:0xff:m
 
 
-// libraries
-#include <avr/io.h>
-#include <avr/sleep.h>
-#include <avr/interrupt.h>
-#include <util/delay.h>
+// ===================================================================================
+// Libraries and Definitions
+// ===================================================================================
 
-// pin definitions
-#define BT_SEEK         PB0               // CH+  button
-#define BT_VOLM         PB1               // VOL- button
-#define BT_VOLP         PB2               // VOL+ button
-#define I2C_SDA         PB3               // I2C serial data pin
-#define I2C_SCL         PB4               // I2C serial clock pin
+// Libraries
+#include <avr/io.h>           // for GPIO
+#include <avr/sleep.h>        // for sleep functions
+#include <avr/interrupt.h>    // for interrupts
+#include <util/delay.h>       // for delays
 
-// -----------------------------------------------------------------------------
+// Pin definitions
+#define BT_SEEK   PB0         // CH+  button
+#define BT_VOLM   PB1         // VOL- button
+#define BT_VOLP   PB2         // VOL+ button
+#define I2C_SDA   PB3         // I2C serial data pin
+#define I2C_SCL   PB4         // I2C serial clock pin
+#define BT_MASK   (1<<BT_SEEK)|(1<<BT_VOLM)|(1<<BT_VOLP)
+
+// ===================================================================================
 // I2C Implementation
-// -----------------------------------------------------------------------------
+// ===================================================================================
 
 // I2C macros
 #define I2C_SDA_HIGH()  DDRB &= ~(1<<I2C_SDA) // release SDA   -> pulled HIGH by resistor
@@ -69,7 +89,7 @@ void I2C_init(void) {
 void I2C_write(uint8_t data) {
   for(uint8_t i = 8; i; i--, data<<=1) {  // transmit 8 bits, MSB first
     I2C_SDA_LOW();                        // SDA LOW for now (saves some flash this way)
-    if (data & 0x80) I2C_SDA_HIGH();      // SDA HIGH if bit is 1
+    if(data & 0x80) I2C_SDA_HIGH();       // SDA HIGH if bit is 1
     I2C_SCL_HIGH();                       // clock HIGH -> slave reads the bit
     I2C_SCL_LOW();                        // clock LOW again
   }
@@ -92,9 +112,9 @@ void I2C_stop(void) {
   I2C_SDA_HIGH();                         // stop condition: SDA goes HIGH second
 }
 
-// -----------------------------------------------------------------------------
+// ===================================================================================
 // RDA5807 Implementation
-// -----------------------------------------------------------------------------
+// ===================================================================================
 
 // RDA definitions
 #define RDA_ADDR_SEQ    0x20              // RDA I2C write address for sequential access
@@ -126,7 +146,7 @@ void RDA_writeReg(uint8_t reg) {
 // RDA write all registers
 void RDA_writeAllRegs(void) {
   I2C_start(RDA_ADDR_SEQ);                // start I2C for sequential write to RDA
-  for (uint8_t i=0; i<6; i++) {           // write to 6 registers
+  for(uint8_t i=0; i<6; i++) {            // write to 6 registers
     I2C_write(RDA_regs[i] >> 8);          // send high byte
     I2C_write(RDA_regs[i] & 0xFF);        // send low byte
   }
@@ -156,45 +176,43 @@ void RDA_seekUp(void) {
   RDA_writeReg(0);                        // write to register 0x02
 }
 
-// -----------------------------------------------------------------------------
+// ===================================================================================
 // Main Function
-// -----------------------------------------------------------------------------
-
-#define BT_MASK   (1<<BT_SEEK)|(1<<BT_VOLM)|(1<<BT_VOLP)
+// ===================================================================================
 
 int main(void) {
-  // setup pins
+  // Setup pins
   PORTB |= (BT_MASK);                     // pull-ups for button pins
   
-  // setup pin change interrupt
+  // Setup pin change interrupt
   GIMSK = (1<<PCIE);                      // turn on pin change interrupts
   PCMSK = (BT_MASK);                      // turn on interrupt on button pins
   sei();                                  // enable global interrupts
 
-  // disable unused peripherals and set sleep mode to save power
+  // Disable unused peripherals and set sleep mode to save power
   ADCSRA = 0;                             // disable ADC
   ACSR   = (1<<ACD);                      // disable analog comperator
   PRR    = (1<<PRTIM0) | (1<<PRADC);      // shut down ADC and timer0
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);    // set sleep mode to power down
 
-  // setup radio
+  // Setup radio
   uint8_t volume = RDA_VOL;               // set start volume
   RDA_init();                             // initialize RDA
   RDA_seekUp();                           // seek a channel
 
-  // loop
+  // Loop
   while(1) {
     sleep_mode();                         // sleep until button is pressed
     _delay_ms(1);                         // debounce
     uint8_t buttons = ~PINB & (BT_MASK);  // read button pins
     switch (buttons) {                    // send corresponding command to RDA
       case (1<<BT_SEEK): RDA_seekUp(); break;
-      case (1<<BT_VOLM): if (volume)      RDA_setVolume(--volume); break;
-      case (1<<BT_VOLP): if (volume < 15) RDA_setVolume(++volume); break;
+      case (1<<BT_VOLM): if(volume)      RDA_setVolume(--volume); break;
+      case (1<<BT_VOLP): if(volume < 15) RDA_setVolume(++volume); break;
       default: break;
     }
   }
 }
 
-// pin change interrupt service routine
-EMPTY_INTERRUPT (PCINT0_vect);            // nothing to be done here, just wake up from sleep
+// Pin change interrupt service routine
+EMPTY_INTERRUPT(PCINT0_vect);             // nothing to be done here, just wake up from sleep
